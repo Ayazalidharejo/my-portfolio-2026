@@ -1,13 +1,21 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useRef, useEffect, useState, ReactNode } from "react";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import Image from "next/image";
 import { FaReact, FaNodeJs, FaBootstrap, FaGithub, FaLinkedin, FaTwitter } from "react-icons/fa";
 import { SiNextdotjs, SiTypescript, SiExpress, SiTailwindcss, SiMui } from "react-icons/si";
+import "./Button53.css";
 
 gsap.registerPlugin(ScrollTrigger);
+
+type Skill = {
+  name: string;
+  icon: ReactNode;
+  color: string;
+  image: string;
+};
 
 const Hero = () => {
   const heroRef = useRef<HTMLElement>(null);
@@ -20,18 +28,69 @@ const Hero = () => {
   const orbitContainerRef = useRef<HTMLDivElement>(null);
   const statsRef = useRef<HTMLDivElement[]>([]);
   const socialRefs = useRef<HTMLAnchorElement[]>([]);
+  const orbitAnimationsRef = useRef<gsap.core.Tween[]>([]);
+  const rotationAnimationsRef = useRef<gsap.core.Tween[]>([]);
+  const tooltipRefs = useRef<HTMLDivElement[]>([]);
 
-  const skills = [
-    { name: "React", icon: <FaReact className="text-blue-500" />, color: "#61DAFB" },
-    { name: "Shadcn", icon: <div className="text-black font-bold text-[10px]">shadcn</div>, color: "#000000" },
-    { name: "Next.js", icon: <SiNextdotjs className="text-black" />, color: "#000000" },
-    { name: "TypeScript", icon: <SiTypescript className="text-blue-600" />, color: "#3178C6" },
-    { name: "Node.js", icon: <FaNodeJs className="text-green-600" />, color: "#339933" },
-    { name: "Express", icon: <SiExpress className="text-gray-800" />, color: "#000000" },
-    { name: "Bootstrap", icon: <FaBootstrap className="text-purple-600" />, color: "#7952B3" },
-    { name: "Tailwind", icon: <SiTailwindcss className="text-cyan-500" />, color: "#06B6D4" },
-    { name: "Material UI", icon: <SiMui className="text-blue-600" />, color: "#007FFF" },
+  const skills: Skill[] = [
+    {
+      name: "React",
+      icon: <FaReact className="text-blue-500" />,
+      color: "#61DAFB",
+      image: "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1200&q=80",
+    },
+    {
+      name: "Shadcn",
+      icon: <div className="text-black font-bold text-[10px]">shadcn</div>,
+      color: "#000000",
+      image: "https://images.unsplash.com/photo-1517430816045-df4b7de11d1d?w=1200&q=80",
+    },
+    {
+      name: "Next.js",
+      icon: <SiNextdotjs className="text-black" />,
+      color: "#000000",
+      image: "https://images.unsplash.com/photo-1461749280684-dccba630e2f6?w=1200&q=80",
+    },
+    {
+      name: "TypeScript",
+      icon: <SiTypescript className="text-blue-600" />,
+      color: "#3178C6",
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80",
+    },
+    {
+      name: "Node.js",
+      icon: <FaNodeJs className="text-green-600" />,
+      color: "#339933",
+      image: "https://images.unsplash.com/photo-1504805572947-34fad45aed93?w=1200&q=80",
+    },
+    {
+      name: "Express",
+      icon: <SiExpress className="text-gray-800" />,
+      color: "#000000",
+      image: "https://images.unsplash.com/photo-1487058792275-0ad4aaf24ca7?w=1200&q=80",
+    },
+    {
+      name: "Bootstrap",
+      icon: <FaBootstrap className="text-purple-600" />,
+      color: "#7952B3",
+      image: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?w=1200&q=80",
+    },
+    {
+      name: "Tailwind",
+      icon: <SiTailwindcss className="text-cyan-500" />,
+      color: "#06B6D4",
+      image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80",
+    },
+    {
+      name: "Material UI",
+      icon: <SiMui className="text-blue-600" />,
+      color: "#007FFF",
+      image: "https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?w=1200&q=80",
+    },
   ];
+
+  const defaultProfileImage = "https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80";
+  const [activeSkill, setActiveSkill] = useState<Skill | null>(null);
 
   const stats = [
     { number: "50+", label: "Projects" },
@@ -45,8 +104,57 @@ const Hero = () => {
     { icon: <FaTwitter />, href: "#", name: "Twitter" },
   ];
 
+  const activeImage = activeSkill?.image ?? defaultProfileImage;
+
+  const pauseSkillAnimations = () => {
+    orbitAnimationsRef.current.forEach((animation) => animation?.pause());
+    rotationAnimationsRef.current.forEach((animation) => animation?.pause());
+  };
+
+  const resumeSkillAnimations = () => {
+    orbitAnimationsRef.current.forEach((animation) => animation?.resume());
+    rotationAnimationsRef.current.forEach((animation) => animation?.resume());
+  };
+
+  const handleSkillEnter = (skill: Skill) => {
+    setActiveSkill(skill);
+  };
+
+  const handleSkillLeave = () => {
+    setActiveSkill(null);
+  };
+
+  const handleOrbitEnter = () => {
+    pauseSkillAnimations();
+  };
+
+  const handleOrbitLeave = () => {
+    resumeSkillAnimations();
+    setActiveSkill(null);
+  };
+
   useEffect(() => {
     if (!heroRef.current || !titleRef.current || !imageRef.current) return;
+    
+    // Ensure button is visible before any animations - set initial state
+    const initButton = () => {
+      if (buttonRef.current) {
+        gsap.set(buttonRef.current, { 
+          opacity: 1, 
+          visibility: 'visible', 
+          display: 'block',
+          scale: 1,
+          rotation: 0,
+          clearProps: "all"
+        });
+      }
+    };
+    
+    // Set immediately
+    initButton();
+    
+    // Also set after a small delay to ensure it's set after render
+    setTimeout(initButton, 50);
 
     // Split title into characters
     const titleText = titleRef.current.textContent || "";
@@ -120,15 +228,21 @@ const Hero = () => {
         },
         "-=0.4"
       )
-      // Button animation
-      .from(
+      // Button animation - ensure button exists first
+      buttonRef.current && tl.fromTo(
         buttonRef.current,
         {
-          scale: 0,
+          scale: 0.8,
           opacity: 0,
-          rotation: -180,
+          rotation: -90,
+        },
+        {
+          scale: 1,
+          opacity: 1,
+          rotation: 0,
           duration: 0.8,
           ease: "back.out(1.7)",
+          immediateRender: false,
         },
         "-=0.5"
       )
@@ -160,6 +274,9 @@ const Hero = () => {
 
     // Infinite circular orbit for skill icons
     if (orbitContainerRef.current) {
+      orbitAnimationsRef.current = [];
+      rotationAnimationsRef.current = [];
+
       const icons = orbitContainerRef.current.querySelectorAll(".skill-icon");
       const orbitDuration = 25;
 
@@ -177,11 +294,13 @@ const Hero = () => {
         gsap.set(element, {
           x: initialX,
           y: initialY,
+          xPercent: -50,
+          yPercent: -50,
           transformOrigin: "center center",
         });
 
         // Circular orbit animation
-        gsap.to(proxy, {
+        const orbitTween = gsap.to(proxy, {
           angle: startAngle + 360,
           duration: orbitDuration,
           repeat: -1,
@@ -193,17 +312,33 @@ const Hero = () => {
             gsap.set(element, {
               x: x,
               y: y,
+              xPercent: -50,
+              yPercent: -50,
             });
           },
         });
+        orbitAnimationsRef.current.push(orbitTween);
 
         // Individual icon rotation
-        gsap.to(element, {
+        const rotationTween = gsap.to(element, {
           rotation: 360,
           duration: 10,
           repeat: -1,
           ease: "none",
         });
+        rotationAnimationsRef.current.push(rotationTween);
+
+        // Counter-rotate tooltip to keep it horizontal
+        const tooltip = element.querySelector('[data-tooltip]') as HTMLElement;
+        if (tooltip) {
+          const tooltipRotationTween = gsap.to(tooltip, {
+            rotation: -360,
+            duration: 10,
+            repeat: -1,
+            ease: "none",
+          });
+          rotationAnimationsRef.current.push(tooltipRotationTween);
+        }
 
         // Icon entrance animation
         gsap.from(element, {
@@ -272,15 +407,15 @@ const Hero = () => {
           }
         });
 
-        // Button scroll animation
-        if (buttonRef.current) {
-          gsap.to(buttonRef.current, {
-            y: -60 * progress,
-            opacity: 1 - progress * 0.6,
-            scale: 1 - progress * 0.1,
-            duration: 0.1,
-          });
-        }
+        // Button scroll animation - removed to keep buttons fixed
+        // if (buttonRef.current) {
+        //   gsap.to(buttonRef.current, {
+        //     y: -60 * progress,
+        //     opacity: 1 - progress * 0.6,
+        //     scale: 1 - progress * 0.1,
+        //     duration: 0.1,
+        //   });
+        // }
 
         // Image scroll animation - stays centered but scales
         if (imageRef.current) {
@@ -329,8 +464,28 @@ const Hero = () => {
       }
     });
 
+    // Ensure button is visible immediately and after animation
+    const ensureButtonVisible = () => {
+      if (buttonRef.current) {
+        gsap.set(buttonRef.current, { 
+          opacity: 1, 
+          visibility: 'visible', 
+          display: 'block',
+          scale: 1 
+        });
+      }
+    };
+    
+    ensureButtonVisible();
+    
+    // Also ensure after a delay in case animation interferes
+    setTimeout(ensureButtonVisible, 100);
+    setTimeout(ensureButtonVisible, 1000);
+
     return () => {
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      orbitAnimationsRef.current.forEach((animation) => animation.kill());
+      rotationAnimationsRef.current.forEach((animation) => animation.kill());
     };
   }, []);
 
@@ -379,7 +534,9 @@ const Hero = () => {
             <h1
               ref={titleRef}
               className="text-6xl md:text-7xl lg:text-8xl font-black leading-[0.9] text-black"
-            >
+            onMouseEnter={handleOrbitEnter}
+            onMouseLeave={handleOrbitLeave}
+          >
               Creative Developer
             </h1>
 
@@ -417,29 +574,45 @@ const Hero = () => {
             <div className="flex gap-4 flex-wrap">
               <button
                 ref={buttonRef}
-                className="group relative px-8 py-4 bg-black text-white rounded-full font-semibold text-base overflow-hidden transition-all duration-300 hover:scale-105"
+                className="btn-53"
+                style={{ opacity: 1, visibility: 'visible' }}
               >
-                <span className="relative z-10 flex items-center gap-2">
-                  View Portfolio
-                  <svg
-                    className="w-5 h-5 group-hover:translate-x-1 transition-transform duration-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M13 7l5 5m0 0l-5 5m5-5H6"
-                    />
-                  </svg>
-                </span>
-                <div className="absolute inset-0 bg-gradient-to-r from-gray-800 via-black to-gray-800 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="original">View Portfolio</div>
+                <div className="letters">
+                  <span>V</span>
+                  <span>I</span>
+                  <span>E</span>
+                  <span>W</span>
+                  <span> </span>
+                  <span>P</span>
+                  <span>O</span>
+                  <span>R</span>
+                  <span>T</span>
+                  <span>F</span>
+                  <span>O</span>
+                  <span>L</span>
+                  <span>I</span>
+                  <span>O</span>
+                </div>
               </button>
 
-              <button className="group px-8 py-4 border-2 border-black text-black rounded-full font-semibold text-base transition-all duration-300 hover:bg-black hover:text-white">
-                Contact Me
+              <button 
+                className="btn-53"
+                style={{ opacity: 1, visibility: 'visible' }}
+              >
+                <div className="original">Contact Me</div>
+                <div className="letters">
+                  <span>C</span>
+                  <span>O</span>
+                  <span>N</span>
+                  <span>T</span>
+                  <span>A</span>
+                  <span>C</span>
+                  <span>T</span>
+                  <span> </span>
+                  <span>M</span>
+                  <span>E</span>
+                </div>
               </button>
             </div>
 
@@ -466,8 +639,15 @@ const Hero = () => {
             {/* Orbit Container */}
             <div
               ref={orbitContainerRef}
-              className="relative flex items-center justify-center"
-              style={{ width: "500px", height: "500px" }}
+              className="absolute top-1/2 left-1/2 pointer-events-auto"
+              style={{ 
+                width: "500px", 
+                height: "500px",
+                transform: 'translate(-50%, -50%)',
+                margin: '0',
+              }}
+              onMouseEnter={handleOrbitEnter}
+              onMouseLeave={handleOrbitLeave}
             >
               {/* Center Image - Always in center */}
               <div
@@ -480,11 +660,13 @@ const Hero = () => {
                   left: '50%',
                   transform: 'translate(-50%, -50%)',
                   position: 'absolute',
+                  margin: '0',
                 }}
               >
                 <div className="relative w-full h-full rounded-full">
                   <Image
-                    src="https://images.unsplash.com/photo-1498050108023-c5249f4df085?w=1200&q=80"
+                    key={activeImage}
+                    src={activeImage}
                     alt="Developer"
                     fill
                     className="object-cover rounded-full group-hover:scale-110 transition-transform duration-700"
@@ -507,12 +689,25 @@ const Hero = () => {
                     left: '50%',
                     transformOrigin: "center center",
                   }}
+                  onMouseEnter={() => handleSkillEnter(skill)}
+                  onMouseLeave={handleSkillLeave}
                 >
-                  <div className="text-2xl group-hover:scale-110 transition-transform duration-300 flex items-center justify-center">
+                  <div className="text-2xl group-hover:scale-110 transition-transform duration-300 flex items-center justify-center relative z-10">
                     {skill.icon}
                   </div>
-                  <div className="absolute -bottom-8 text-xs font-bold text-black opacity-0 group-hover:opacity-100 transition-opacity duration-300 whitespace-nowrap">
+                  <div 
+                    data-tooltip
+                    ref={(el) => {
+                      if (el) tooltipRefs.current[index] = el;
+                    }}
+                    className="absolute -top-14 left-1/2 text-xs font-bold text-white bg-black px-3 py-1.5 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-300 whitespace-nowrap shadow-lg z-50 pointer-events-none"
+                    style={{
+                      transform: 'translateX(-50%)',
+                      transformOrigin: 'center center',
+                    }}
+                  >
                     {skill.name}
+                    <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-l-[6px] border-r-[6px] border-t-[6px] border-transparent border-t-black"></div>
                   </div>
                 </div>
               ))}

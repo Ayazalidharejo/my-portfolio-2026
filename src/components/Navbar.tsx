@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import "./Button53.css";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -38,8 +39,20 @@ const Navbar = () => {
         </nav>
 
         <div className="flex items-center gap-4">
-          <button className="hidden md:inline-block rounded-full bg-black text-white px-6 py-2 text-sm font-semibold shadow-md hover:scale-[1.01] transition-transform duration-120">
-            Let's Talk
+          <button className="btn-53 hidden md:inline-block">
+            <div className="original">Let's Talk</div>
+            <div className="letters">
+              <span>L</span>
+              <span>E</span>
+              <span>T</span>
+              <span>'</span>
+              <span>S</span>
+              <span> </span>
+              <span>T</span>
+              <span>A</span>
+              <span>L</span>
+              <span>K</span>
+            </div>
           </button>
 
           <button className="md:hidden p-2 rounded-md">

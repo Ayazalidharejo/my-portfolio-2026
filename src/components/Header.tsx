@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import "./Button53.css";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 
@@ -177,9 +178,21 @@ const Header = () => {
         {/* CTA Button */}
         <button
           ref={ctaRef}
-          className="hidden md:inline-block rounded-full bg-black text-white px-6 py-2 text-sm font-semibold shadow-md hover:scale-[1.01] transition-transform duration-200 flex-shrink-0 z-10 ml-auto mt-10"
+          className="btn-53 hidden md:inline-block flex-shrink-0 z-10 ml-auto mt-10"
         >
-          Let's Talk
+          <div className="original">Let's Talk</div>
+          <div className="letters">
+            <span>L</span>
+            <span>E</span>
+            <span>T</span>
+            <span>'</span>
+            <span>S</span>
+            <span> </span>
+            <span>T</span>
+            <span>A</span>
+            <span>L</span>
+            <span>K</span>
+          </div>
         </button>
       </div>
     </header>

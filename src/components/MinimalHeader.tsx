@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import gsap from "gsap";
+import "./Button53.css";
 
 const MinimalHeader = () => {
   const [isScrolled, setIsScrolled] = useState(false);
@@ -48,8 +49,22 @@ const MinimalHeader = () => {
         </div>
 
         {/* Right CTA Button */}
-        <button className="px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-full hover:bg-gray-800 transition-colors">
-          Get in Touch
+        <button className="btn-53">
+          <div className="original">Get in Touch</div>
+          <div className="letters">
+            <span>G</span>
+            <span>E</span>
+            <span>T</span>
+            <span> </span>
+            <span>I</span>
+            <span>N</span>
+            <span> </span>
+            <span>T</span>
+            <span>O</span>
+            <span>U</span>
+            <span>C</span>
+            <span>H</span>
+          </div>
         </button>
       </nav>
     </header>
